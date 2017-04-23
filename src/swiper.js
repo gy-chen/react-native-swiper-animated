@@ -19,7 +19,6 @@ class Swiper extends Component {
 
   constructor(props) {
     super(props);
-    console.log(this);
 
     // set up initial index
     // TODO read initial index from props
@@ -38,7 +37,6 @@ class Swiper extends Component {
        onPanResponderRelease: (evt, gestureState) => {
          const { dy } = gestureState;
          const { swipe_threshold } = this.props;
-         // TODO
          if (dy > swipe_threshold * height) {
            // previous page
            this.previous_page();
@@ -174,7 +172,8 @@ const styles = StyleSheet.create({
   },
   animated_container: {
     width,
-    height
+    height,
+    backgroundColor: 'transparent'
   }
 });
 
