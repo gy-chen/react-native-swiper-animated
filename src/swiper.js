@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import {
   View,
   Dimensions,
@@ -14,7 +14,12 @@ const { width, height } = Dimensions.get('window');
 class Swiper extends Component {
 
   static defaultProps = {
-    swipe_threshold: 0.25
+    swipe_threshold: 0.25,
+    initialPage: 0
+  }
+
+  static propTypes = {
+    initialPage: PropTypes.number
   }
 
   constructor(props) {
@@ -31,7 +36,11 @@ class Swiper extends Component {
     this.panResponder = PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderMove: (evt, gestureState) => {
-        const { dy } = gestureState;
+        let { dy } = gestureState;
+        // slow down animation if no previous or next page exists.
+        if ((dy < 0 && !this._has_next_page()) || (dy > 0 && !this._has_previous_page())) {
+          dy *= 0.2;
+        }
         this.position_y.setValue(dy);
        },
        onPanResponderRelease: (evt, gestureState) => {
