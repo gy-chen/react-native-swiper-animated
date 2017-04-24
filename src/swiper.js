@@ -5,7 +5,8 @@ import {
   Dimensions,
   StyleSheet,
   Animated,
-  PanResponder
+  PanResponder,
+  ViewPagerAndroid
 } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -15,20 +16,22 @@ class Swiper extends Component {
 
   static defaultProps = {
     swipe_threshold: 0.25,
-    initialPage: 0
+    initialPage: 0,
+    horizontal: true
   }
 
   static propTypes = {
-    initialPage: PropTypes.number
+    initialPage: PropTypes.number,
+    horizontal: PropTypes.bool,
+    onPageSelected: PropTypes.func
   }
 
   constructor(props) {
     super(props);
 
     // set up initial index
-    // TODO read initial index from props
     this.state = {
-      index: 0
+      index: this.props.initialPage
     };
     // set up animation values here
     this.position_y = new Animated.Value(0);
@@ -63,13 +66,15 @@ class Swiper extends Component {
   next_page() {
     if (this._has_next_page()) {
       const updated_index = this.state.index + 1;
-      Animated.spring(this.position_y, {
-        toValue: -height
+      Animated.timing(this.position_y, {
+        toValue: -height,
+        duration: 200
       }).start(() => {
-        this.position_y.setValue(0);
         this.setState({
           index: updated_index
         });
+        this._onPageSelected();
+        this.position_y.setValue(0);
       });
     } else {
       this._reset_position();
@@ -79,17 +84,29 @@ class Swiper extends Component {
   previous_page() {
     if (this._has_previous_page()) {
       const updated_index = this.state.index - 1;
-      Animated.spring(this.position_y, {
-        toValue: height
+      Animated.timing(this.position_y, {
+        toValue: height,
+        duration: 200
       }).start(() => {
-        this.position_y.setValue(0);
         this.setState({
           index: updated_index
         });
+        this._onPageSelected();
+        this.position_y.setValue(0);
       });
     } else {
       this._reset_position();
     }
+  }
+
+  setPage(page) {
+    this.setState({
+      index: page
+    });
+  }
+
+  setPageWithoutAnimation(page) {
+    this.setPage(page);
   }
 
   _reset_position() {
@@ -151,7 +168,23 @@ class Swiper extends Component {
     );
   }
 
+  _onPageSelected() {
+    // mimic how ViewPagerAndroid works
+    const event = {
+      nativeEvent: {
+        position: this.state.index
+      }
+    };
+    _.invoke(this.props, 'onPageSelected', event);
+  }
+
   render() {
+    if (this.props.horizontal) {
+      // TODO deal with platform ios
+      return (
+        <ViewPagerAndroid {...this.props} />
+      );
+    }
     const pages = [];
     // if has previous page, wrapped in animated view and render it
     pages.push((
