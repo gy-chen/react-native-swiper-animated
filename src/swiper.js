@@ -23,7 +23,9 @@ class Swiper extends Component {
   static propTypes = {
     initialPage: PropTypes.number,
     horizontal: PropTypes.bool,
-    onPageSelected: PropTypes.func
+    onPageSelected: PropTypes.func,
+    onScrollBegin: PropTypes.func,
+    onScrollEnd: PropTypes.func
   }
 
   constructor(props) {
@@ -45,6 +47,7 @@ class Swiper extends Component {
           dy *= 0.2;
         }
         this.position_y.setValue(dy);
+        _.invoke(this.props, 'onScrollBegin', evt);
        },
        onPanResponderRelease: (evt, gestureState) => {
          const { dy } = gestureState;
@@ -59,6 +62,7 @@ class Swiper extends Component {
            // reset poition
            this._reset_position();
          }
+         _.invoke(this.props, 'onScrollEnd', evt);
         }
     });
   }
