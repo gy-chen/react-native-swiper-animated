@@ -140,7 +140,7 @@ class Swiper extends Component {
 
   _render_current_page() {
     const { index } = this.state;
-    const page = _.get(this.props, `children[${index}]`);
+    const page = _.get(this.props, 'children.length') > 1 ? _.get(this.props, `children[${index}]`) : _.get(this.props, 'children');
     return (
       <Animated.View key={index} style={[styles.animated_container, {
         top: this.position_y
